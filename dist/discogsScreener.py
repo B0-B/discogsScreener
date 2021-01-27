@@ -38,9 +38,8 @@ class screener:
     VINYLS = CONF['vinyls']
 
     # initialize mail-service
-    LOG.email(CONF['credentials']['mailSender'], CONF['credentials']['senderPassword'], contacts={'me': CONF['credentials']['mailSender']}, smtpServer='provider smtp', port=587)
+    LOG.email(CONF['credentials']['mailSender'], CONF['credentials']['senderPassword'], contacts={'me': CONF['credentials']['mailReceiver']}, smtpServer=CONF['credentials']['smtpSender'], port=587)
         
-
     LOG.note('Welcome to discogsScreener! See the project https://github.com/B0-B/discogsScreener if you want to contribute!', save=False, logType='Bot', logTypeCol='\033[94m')
 
     def dump(self):
@@ -83,15 +82,18 @@ class screener:
             else:
                 for key, val in deltas.items():
                     changeString += f'\n   [{key}]: \033[0;33m {len(val)}\033[0m'
-            self.LOG.note(changeString, save=True, logType='Bot', logTypeCol='\033[94m')
 
-            # send a mail
-            msg = 'Hello,\nnew additions on discogs.com were detected:'
-            for key, val in deltas.items():
-                msg += f'\n[{key}]:'
-                for change in val:
-                    change = f"\n Release-ID: {change.split(' ')[1]}"
-            self.LOG.note(msg, deliverTo='me', subject='discogsScreener: New releases on discogs!', save=False, detatch=True)
+                self.LOG.note(changeString, save=True, logType='Bot', logTypeCol='\033[94m')
+
+                # send a mail
+                msg = 'Hello,\nnew additions on discogs.com were detected:'
+                for key, val in deltas.items():
+                    msg += f'\n[{key}]:'
+                    for change in val:
+                        change = f"\n Release-ID: {change.split(' ')[1]}"
+                self.LOG.note(msg, deliverTo='me', subject='discogsScreener: New releases on discogs!', save=False, detatch=True)
+
+            
 
         # collect garbage
         gc.collect()

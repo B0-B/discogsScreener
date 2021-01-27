@@ -3,6 +3,7 @@ credentials:
   token: ''
   mailReceiver: ''
   mailSender: ''
+  smtpSender: 'smtp.gmail.com'
   senderPassword: ''
 
 vinyls:

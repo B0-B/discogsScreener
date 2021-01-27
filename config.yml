@@ -1,7 +1,9 @@
 credentials:
 
-  token: 'Your API key'
-  mail: 'Your mail address'
+  token: ''
+  mailReceiver: ''
+  mailSender: ''
+  senderPassword: ''
 
 vinyls:
 
@@ -15,15 +17,15 @@ vinyls:
   #   info: 'optional info about the vinyl.'
 
   vinyl_1:
-    cat: 'm10362'
+    cat: 'SHVL 804, 1E 064 o 05249'
     artist: 'Pink Floyd'
     album: 'The Dark Side Of The Moon'
     year: 1973
     info: 'Trippy Sounds ...'
-  
+
   vinyl_2:
-    cat: 'm10362'
-    artist: 'Pink Floyd'
-    album: 'The Dark Side Of The Moon'
-    year: 1973
-    info: 'Trippy Sounds ...'
+    cat: 'HCR-13'
+    artist: 'Dropdead'
+    album: 'Rapture'
+    year: 1992
+    info: 'random ...'

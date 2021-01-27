@@ -4,7 +4,7 @@
 This is the core of the screener.
 '''
 
-import sys, os, yaml, json
+import sys, os, yaml, json, gc
 from datetime import date
 sys.path.append('..')
 
@@ -32,10 +32,14 @@ class screener:
     # define global parameters
     CONF = payload
     DATE = date.today()
-    API = discogs_client.Client('ExampleApplication/0.1', user_token=CONF['credentials']['key'])  # login to discogs
+    API = discogs_client.Client('ExampleApplication/0.1', user_token=CONF['credentials']['token'])  # login to discogs
     LOG = logger(f'../logs/logging_{DATE.strftime("%d-%m-%Y")}.log')
     DB = dumpReadIn # database remembers offers belonging to an id on discogs
     VINYLS = CONF['vinyls']
+
+    # initialize mail-service
+    LOG.email(CONF['credentials']['mailSender'], CONF['credentials']['senderPassword'], contacts={'me': CONF['credentials']['mailSender']}, smtpServer='provider smtp', port=587)
+        
 
     LOG.note('Welcome to discogsScreener! See the project https://github.com/B0-B/discogsScreener if you want to contribute!', save=False, logType='Bot', logTypeCol='\033[94m')
 
@@ -43,9 +47,59 @@ class screener:
         with open('./dump.json', 'w+') as f:
             json.dump(self.DB, f)
     
-    def screen(self):
-        self.LOG.note('Screening the market ...', save=False, logType='Bot', logTypeCol='\033[94m', wait=1)
-    
+    def screen(self, delay=60, alarm=True):
+        
+        self.LOG.note('==== Screening the market ====', save=False, logType='Bot', logTypeCol='\033[94m')
+        
+        # screen for each vinyl
+        deltas = {}
+        for v in self.VINYLS.values():
+
+            # make a search and fetch
+            self.LOG.note(f' search for {v["artist"]} ...', save=False, logType='Bot', logTypeCol='\033[94m', wait=2)
+            results = list(self.API.search(v['cat'], type='everything'))
+            
+            # compare differences to DB
+            for r in results:
+                r = str(r)
+                if r not in self.DB[v['cat']]:
+                    # drop value in database
+                    self.DB[v['cat']].append(r)
+
+                    # remember this difference
+                    if v['cat'] in deltas.keys():
+                        deltas[v['cat']].append(r)
+                    else:
+                        deltas[v['cat']] = [r]
+            
+            # delete old values from database
+            #print('diff:', deltas)
+        if alarm:
+
+            # inform the user
+            changeString = '\n  Changes:'
+            if deltas == {}:
+                changeString += '\n\033[0;32m   up to date.\033[0m'
+            else:
+                for key, val in deltas.items():
+                    changeString += f'\n   [{key}]: \033[0;33m {len(val)}\033[0m'
+            self.LOG.note(changeString, save=True, logType='Bot', logTypeCol='\033[94m')
+
+            # send a mail
+            msg = 'Hello,\nnew additions on discogs.com were detected:'
+            for key, val in deltas.items():
+                msg += f'\n[{key}]:'
+                for change in val:
+                    change = f"\n Release-ID: {change.split(' ')[1]}"
+            self.LOG.note(msg, deliverTo='me', subject='discogsScreener: New releases on discogs!', save=False, detatch=True)
+
+        # collect garbage
+        gc.collect()
+
+        # sleeper
+        self.LOG.note('==============================\n', wait=delay, save=False, logType='Bot', logTypeCol='\033[94m')
+
+
     def run(self):
 
         '''
@@ -65,11 +119,15 @@ class screener:
                     searchList += f"\n [{v['cat']}] {v['artist']} - {v['album']} ({v['year']})"
             self.LOG.note(f'Screening for:{searchList}', logType='Bot', logTypeCol='\033[94m')
 
-            # check if the searchList is known in DB
+            # check if the searchList is complete in DB
             dbKeys = self.DB.keys()
             for v in self.VINYLS.values():
                 if v['cat'] not in dbKeys:
                     self.DB[v['cat']] = []
+
+            # if the database is fresh screen once without alarm
+            if len(self.DB.values()) == 0:
+                self.screen(False)
 
             # start the service loop
             while(True):

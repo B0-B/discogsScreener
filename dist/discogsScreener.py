@@ -32,41 +32,48 @@ class screener:
     # define global parameters
     CONF = payload
     DATE = date.today()
-    API = discogs_client.Client('ExampleApplication/0.1')
+    API = discogs_client.Client('ExampleApplication/0.1', user_token=CONF['credentials']['key'])  # login to discogs
     LOG = logger(f'../logs/logging_{DATE.strftime("%d-%m-%Y")}.log')
     DB = dumpReadIn # database remembers offers belonging to an id on discogs
     VINYLS = CONF['vinyls']
 
-    # login to discogs
-    API.set_consumer_key(CONF['credentials']['key'], CONF['credentials']['secret'])
     LOG.note('Welcome to discogsScreener! See the project https://github.com/B0-B/discogsScreener if you want to contribute!', save=False, logType='Bot', logTypeCol='\033[94m')
 
     def dump(self):
         with open('./dump.json', 'w+') as f:
             json.dump(self.DB, f)
     
+    def screen(self):
+        self.LOG.note('Screening the market ...', save=False, logType='Bot', logTypeCol='\033[94m', wait=1)
+    
     def run(self):
+
+        '''
+        Main loop method for the screener.
+        This is meant to be executed as 
+            s = screener()
+            s.run()
+        '''
 
         try:
             # show what is tracked
             searchList = ''
             for v in self.VINYLS.values():
                 if v['artist'] + v['album'] == '':
-                    searchList += f"\n [{v['id']}]"
+                    searchList += f"\n [{v['cat']}]"
                 else:
-                    searchList += f"\n [{v['id']}] {v['artist']} - {v['album']} ({v['year']})"
+                    searchList += f"\n [{v['cat']}] {v['artist']} - {v['album']} ({v['year']})"
             self.LOG.note(f'Screening for:{searchList}', logType='Bot', logTypeCol='\033[94m')
 
             # check if the searchList is known in DB
             dbKeys = self.DB.keys()
             for v in self.VINYLS.values():
-                if v['id'] not in dbKeys:
-                    self.DB[v['id']] = []
+                if v['cat'] not in dbKeys:
+                    self.DB[v['cat']] = []
 
             # start the service loop
             while(True):
-                self.LOG.note('Screening the market ...', save=False, logType='Bot', logTypeCol='\033[94m')
-                break
+                self.screen()
 
         except KeyboardInterrupt:
             self.LOG.note('Terminating service.', logType='Bot', logTypeCol='\033[94m')
@@ -83,5 +90,6 @@ class screener:
 
         
 if __name__ == '__main__':
+    # start service
     s = screener()
     s.run()

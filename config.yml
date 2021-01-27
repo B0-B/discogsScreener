@@ -1,7 +1,6 @@
 credentials:
 
-  key: 'Your API key'
-  secret: 'Your Secret'
+  token: 'Your API key'
   mail: 'Your mail address'
 
 vinyls:
@@ -9,21 +8,21 @@ vinyls:
   # ---- TEMPLATE ----
   # add a new vinyl as follows:
   # vinyl_number: 
-  #   id: 'discogs release code'
+  #   cat: 'discogs release code'
   #   artist: 'optional info about artist'
   #   album: 'optional info about album'
   #   year: 1970
   #   info: 'optional info about the vinyl.'
 
   vinyl_1:
-    id: 'm10362'
+    cat: 'm10362'
     artist: 'Pink Floyd'
     album: 'The Dark Side Of The Moon'
     year: 1973
     info: 'Trippy Sounds ...'
   
   vinyl_2:
-    id: 'm10362'
+    cat: 'm10362'
     artist: 'Pink Floyd'
     album: 'The Dark Side Of The Moon'
     year: 1973

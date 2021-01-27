@@ -1,5 +1,7 @@
+#!/usr/bin/bash
+
 date=$(date +%Y)
-echo "======================\ndiscogsScreener © $date\n======================\n"
+echo -e "======================\ndiscogsScreener © $date\n======================\n"
 
 # install prology with pip3 (python3)
 echo installing prology ...

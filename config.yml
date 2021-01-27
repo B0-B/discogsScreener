@@ -8,10 +8,10 @@ vinyls:
 
   # ---- TEMPLATE ----
   # add a new vinyl as follows:
-  # vinyl: 
+  # vinyl_number: 
   #   id: 'discogs release code'
-  #   artist: 'otional info about artist'
-  #   album: 'otional info about album'
+  #   artist: 'optional info about artist'
+  #   album: 'optional info about album'
   #   year: 1970
   #   info: 'optional info about the vinyl.'
 

@@ -56,7 +56,7 @@ class screener:
 
             # make a search and fetch
             self.LOG.note(f' search for {v["artist"]} ...', save=False, logType='Bot', logTypeCol='\033[94m', wait=2)
-            results = list(self.API.search(v['cat'], type='everything'))
+            results = list(self.API.search(v['cat'] + ' ' + v['artist'], type='everything'))
             
             # compare differences to DB
             for r in results:
@@ -88,7 +88,7 @@ class screener:
                 # send a mail
                 msg = 'Hello,\nnew additions on discogs.com were detected:'
                 for key, val in deltas.items():
-                    msg += f'\n[{key}]:'
+                    msg += f'\n[Cat#: {key}]:'
                     for change in val:
                         change = f"\n Release-ID: {change.split(' ')[1]}"
                 self.LOG.note(msg, deliverTo='me', subject='discogsScreener: New releases on discogs!', save=False, detatch=True)

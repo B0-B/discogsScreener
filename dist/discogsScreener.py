@@ -56,7 +56,7 @@ class screener:
 
             # make a search and fetch
             self.LOG.note(f' search for {v["artist"]} ...', save=False, logType='Bot', logTypeCol='\033[94m', wait=2)
-            results = list(self.API.search(v['cat'] + ' ' + v['artist'], type='everything'))
+            results = list(self.API.search(v['cat'] + ' ' + v['artist'] + ' ' + v['album'], type='everything'))
             
             # compare differences to DB
             for r in results:
